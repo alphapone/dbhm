@@ -14,13 +14,15 @@ import java.io.ObjectOutputStream;
 
 
 public class Dbhm {
-	private static String ver = "20180812";
 	private static Dbhm instance = null;
 	
 	public static Dbhm getInstance()
 		throws FileNotFoundException, IOException
 	{
-		synchronized(ver) {
+		if (instance!=null) {
+			return instance;
+		}
+		synchronized(Dbhm.class) {
 			if (instance==null) {
 				instance = new Dbhm();
 			}
@@ -28,40 +30,49 @@ public class Dbhm {
 		return instance;
 	}
 	
-	LCommon cache;
+	LCommon []cache; 
 	
 	protected Dbhm()
 		throws FileNotFoundException, IOException
 	{
-		RandomAccessFile mmf = new RandomAccessFile("dbhm.dat","rw");
+		RandomAccessFile mmf = new RandomAccessFile("dbhm.dat","rw"); // TODO: move to options
 		ByteBuffer cachemem = mmf.getChannel().map(FileChannel.MapMode.READ_WRITE,0,O.getDbhmSize());
-		cache = new LCommon(
+		cache = new LCommon[1]; // TODO: add set of files here instead of one
+		cache[0] = new LCommon(
 			cachemem,
 			O.getConflictResolvingStrategy(),
 			O.getCellSize()
 			);
 	}
 	
-	int getCapacity(){
-		return cache.getCapacity();
+	protected LCommon getCache(Object key) { // TODO: add sharding here by object key
+		return cache[0];
+	}
+	
+	long getCapacity(){
+		long capacity = 0;
+		for (LCommon c:cache) {
+			capacity+=c.getCapacity();
+		}
+		return capacity;
 	}
 	
 	public void putObject(Object key, Object payload) 
 		throws IOException
 	{
-		cache.putObject(key,payload);
+		getCache(key).putObject(key,payload);
 	}
 	
 	public void removeKey(Object key) 
 		throws IOException
 	{
-		cache.removeKey(key);
+		getCache(key).removeKey(key);
 	}
 	
 	public Object getObject(Object key)
 		throws IOException, ClassNotFoundException
 	{
-		return cache.getObject(key);
+		return getCache(key).getObject(key);
 	}
 	
 }
