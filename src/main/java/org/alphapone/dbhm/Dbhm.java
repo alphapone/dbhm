@@ -14,7 +14,7 @@ import java.io.ObjectOutputStream;
 
 
 public class Dbhm {
-	private static Dbhm instance = null;
+	private static volatile Dbhm instance = null;
 	
 	public static Dbhm getInstance()
 		throws FileNotFoundException, IOException
