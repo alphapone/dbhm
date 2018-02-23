@@ -55,13 +55,13 @@ public class Server {
 				if (key!=null) {
 					if (value!=null) {
 						Dbhm dbhm = Dbhm.getInstance();
-						dbhm.putObject(key,String.valueOf(value));
+						dbhm.putObject(String.valueOf(key),String.valueOf(value));
 					} else {
 						Dbhm dbhm = Dbhm.getInstance();
-						Object fo = dbhm.getObject(key);						
+						Object fo = dbhm.getObject(String.valueOf(key));						
 						result.append(String.valueOf(fo));
 						if ("remove".equals(command)) {
-							dbhm.removeKey(key);
+							dbhm.removeKey(String.valueOf(key));
 						}
 					}
 				}
